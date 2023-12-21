@@ -63,7 +63,13 @@ public class Card {
     public void setColour(String colour) {
         this.colour = colour;
     }
-
+    for (int i = deck.length - 1; i > 0; i--) {
+    int index = (int) (Math.random() * (i + 1));
+    int temp = deck[i];
+    deck[i] = deck[index];
+    deck[index] = temp;
+    remainingCards--;
+ }
 
 
 
