@@ -4,8 +4,16 @@ public class Game {
     private Deck gameDeck;
     private Card[] tempPlayerHand;
     private Card[] tempComputerHand;
+    private Card[] finalPlayerHand;
+    private Card[] finalComputerHand;
+    private Card[] playerBoard;
+    private Card[] computerBoard;
+    private int playerBoardSize;
+    private int computerBoardSize;
     private int tempPlayerHandSize;
     private int tempComputerHandSize;
+    private int finalPlayerHandSize;
+    private int finalComputerHandSize;
     private boolean isOver;
 
     public Game() {
@@ -13,8 +21,14 @@ public class Game {
         gameDeck.shuffle();
         tempPlayerHand = new Card[10]; // Assuming max 10 cards in hand
         tempComputerHand = new Card[10]; // Assuming max 10 cards in hand
+        finalPlayerHand = new Card[4];
+        finalComputerHand = new Card[4];
+        playerBoard = new Card[20];
+        computerBoard = new Card[20];
         tempPlayerHandSize = 0;
         tempComputerHandSize = 0;
+        finalPlayerHandSize = 0;
+        finalComputerHandSize = 0;
         isOver = false;
         dealInitialCards();
     }
@@ -24,8 +38,10 @@ public class Game {
             tempComputerHand[tempComputerHandSize++] = gameDeck.dealTopCard();
             tempPlayerHand[tempPlayerHandSize++] = gameDeck.dealBottomCard();
         }
+        generateAdditionalCards();
+        randomizeFinalHands();
     }
-    
+
     private void generateAdditionalCards() {
         for (int i = 0; i < 3; i++) {
             addRandomCardToHand(tempPlayerHand, tempPlayerHandSize++);
@@ -35,6 +51,15 @@ public class Game {
             addSpecialCardToHand(tempPlayerHand, tempPlayerHandSize++);
             addSpecialCardToHand(tempComputerHand, tempComputerHandSize++);
         }
+    }
+
+    private void randomizeFinalHands(){
+        for(int i = 0; i < 4; i++){
+            finalPlayerHand[i] = tempPlayerHand[(int)(Math.random() * 10)];
+            finalComputerHand[i] = tempComputerHand[(int)(Math.random() * 10)];
+        }
+        finalComputerHandSize = 4;
+        finalPlayerHandSize = 4;
     }
 
     private void addRandomCardToHand(Card[] hand, int index) {
@@ -58,6 +83,30 @@ public class Game {
     private String getRandomColor() {
         String[] colors = {"blue", "yellow", "red", "green"};
         return colors[(int)(Math.random() * colors.length)];
+    }
+
+    public void hitPlayer() {
+        playerBoard[playerBoardSize++] = gameDeck.dealTopCard();
+    }
+
+    public void hitComputer() {
+        computerBoard[computerBoardSize++] = gameDeck.dealTopCard();
+    }
+
+    public Card[] getPlayerHand() {
+        return finalPlayerHand;
+    }
+
+    public Card[] getPlayerBoard(){
+        return playerBoard;
+    }
+
+    public int getPlayerHandSize() {
+        return finalPlayerHandSize;
+    }
+
+    public int getPlayerBoardSize(){
+        return playerBoardSize;
     }
 
     public boolean getGameState(){

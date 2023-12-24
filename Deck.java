@@ -15,7 +15,6 @@ public class Deck {
                 cards[size++] = new Card(i, color, "", "normal");
             }
         }
-        // Add special cards logic here
     }
 
     public void shuffle() {
