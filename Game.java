@@ -1,3 +1,5 @@
+import java.text.SimpleDateFormat;  
+import java.util.Date;  
 import java.util.Random;
 
 public class Game {
@@ -21,6 +23,7 @@ public class Game {
     private boolean computerWonTurn;
     private boolean playerWonGame;
     private boolean computerWonGame;
+    private History gameHistory; // if value -1 => game not played yet, value 0 => computer won, if value => player won
 
     public Game() {
         gameDeck = new Deck();
@@ -44,6 +47,7 @@ public class Game {
         playerWonGame = false;
         computerWonGame = false;
         isOver = false;
+        gameHistory = new History();
         dealInitialCards();
     }
 
@@ -133,10 +137,10 @@ public class Game {
     }
 
     public void evaluateResults(){ // if both computer and player stands, and none of them got 20, check who got the bigger value and update scoreboard & end turn
-        if (getPlayerBoardValue() == 20 && checkAllBlue(playerBoard)) {
+        if (getPlayerBoardValue() == 20 && checkAllBlue(playerBoard)) {  // if player has 20 and all blue
             playerWonGame = true;
         }
-        else if(getComputerBoardValue() == 20 && checkAllBlue(computerBoard)){
+        else if(getComputerBoardValue() == 20 && checkAllBlue(computerBoard)){ // if computer has 20 and all blue
             computerWonGame = true;
         }
         else if(getComputerBoardValue() > 20 && getPlayerBoardValue() > 20){
@@ -149,7 +153,7 @@ public class Game {
             computerWonTurn = true;
         }
         else if(getComputerBoardValue() == 20 && getPlayerBoardValue() == 20){
-            System.out.println("It is a tie");
+            // do nothing, updateScores() will see that both players didnt win and print tie
         }
         else if(getComputerBoardValue() == 20){
             computerWonTurn = true;
@@ -191,7 +195,6 @@ public class Game {
         }
         if (playerScore == 3 || computerScore == 3) {
             isOver = true;
-            return;
         }
         playerWonTurn = false;
         computerWonTurn = false;
@@ -201,73 +204,134 @@ public class Game {
     public void resetGame(){ // after a turn ends, this function resets the boards
         playerBoardSize = 0;
         computerBoardSize = 0;
-        playerBoard = new Card[9];
-        computerBoard = new Card[9];
+        for (int i = 0; i < computerBoard.length; i++) {
+            playerBoard[i] = null;
+            computerBoard[i] = null;
+        }
     }
 
     public void computersTurn(){ // MAIN METHOD COMPLEX METHOD I AM DYING MY BROTHER IN CHRIST WHAT IS THIS 
         // TO BE FURTHER IMPLEMENTED, COMPUTER SHOULD BE ABLE TO END TURN, NOT ALWAYS STAND
         // NOT COMPLETELY IMPLEMENTED
         boolean done = false;
-        int maxAdd = 0;
         int maxSub = 0;
         int flipAmount = 0;
         int x2Amount = 0;
 
-        Card[] add = new Card[4];
-        Card[] sub = new Card[4];
-        Card[] flip = new Card[4];
-        Card[] x2 = new Card[4];
         for (int i = 0; i < finalComputerHandSize; i++) {
-            if(finalComputerHand[i].getType().equals("normal") && finalComputerHand[i].getSign().equals("+")){
-                maxAdd += finalComputerHand[i].getValue();
-                add[i] = finalComputerHand[i];
-            }
-            else if(finalComputerHand[i].getType().equals("normal") && finalComputerHand[i].getSign().equals("-")){
-                maxSub += finalComputerHand[i].getValue();
-                sub[i] = finalComputerHand[i];
-            }
-            else if(finalComputerHand[i].getType().equals("flip")){
-                flipAmount++;
-                flip[i] = finalComputerHand[i];
-            }
-            else if(finalComputerHand[i].getType().equals("flip")){
-                x2Amount++;
-                x2[i] = finalComputerHand[i];
+            if (finalComputerHand[i] != null) {
+                if(finalComputerHand[i].getType().equals("normal") && finalComputerHand[i].getSign().equals("-")){
+                    maxSub += finalComputerHand[i].getValue();
+                }
+                else if(finalComputerHand[i].getType().equals("flip")){
+                    flipAmount++;
+                }
+                else if(finalComputerHand[i].getType().equals("flip")){
+                    x2Amount++;
+                }
             }
         }
         while(!done){
-            if(getComputerBoardValue() <= 15){
-                hitComputer();
-            }
-            else if(getComputerBoardValue() >= 16 && getComputerBoardValue() <= 20){
-                done = true;
-            }
-            else if(getComputerBoardValue() - maxSub > 20){
-                for (int i = 0; i < finalComputerHandSize; i++) {
-                    if(finalComputerHand[i].getType().equals("normal") && finalComputerHand[i].getSign().equals("-")){
+            for (int i = 0; i < finalComputerHandSize; i++) {
+                if(finalComputerHand[i] != null && finalComputerHand[i].getSign().equals("+")){ // first it checks if he can reach 20 with using any of its cards
+                    if(getComputerBoardValue() + finalComputerHand[i].getValue() == 20){
+                        System.out.println("Computer played the card: " + finalComputerHand[i]);
                         playCardComputer(finalComputerHand[i]);
                     }
                 }
+            }
+            if(getComputerBoardValue() <= 15){ // if computer has less than 15, it will hit
+                hitComputer();
+            }
+            else if(getComputerBoardValue() >= 16 && getComputerBoardValue() <= 20){ // OPTIMAL INTERVAL, WILL STAY BETWEEN VALUES
                 done = true;
             }
-            else{
+            else if(getComputerBoardValue() > 20 && getComputerBoardValue() - maxSub < 20){ // IF WE ARE ABOVE 20, AND WE CAN REACH BELOW 20, WE WILL PLAY CARDS UNTIL WE REACH
+                for (int i = 0; i < finalComputerHandSize; i++) {
+                    if(finalComputerHand[i] != null && finalComputerHand[i].getSign().equals("-")){
+                        System.out.println("Computer played the card: " + finalComputerHand[i]);
+                        playCardComputer(finalComputerHand[i]);
+                    }
+                    if(getComputerBoardValue() < 20){
+                        break;
+                    }
+                }
+            }
+            else if(getComputerBoardValue() - maxSub > 20){ 
                 done = true;
+            }
+            else if(flipAmount > 0){ // IF WE HAVE FLIP
+                if(computerBoard[computerBoardSize].getSign().equals("-") && getComputerBoardValue() < 20){ // IF FLIP IS LOGICAL TO BE USED
+                    if(computerBoard[computerBoardSize].getValue() * 2 + getComputerBoardValue() <= 20 && computerBoard[computerBoardSize].getValue() * 2 + getComputerBoardValue() >= 16){ // IF USING FLIP PUTS US IN THE OPTIMAL RANGE
+                        for (int i = 0; i < finalComputerHandSize; i++) {
+                            if(finalComputerHand[i] != null && finalComputerHand[i].getType().equals("flip")){
+                                flipAmount--;
+                                System.out.println("Computer played the card: " + finalComputerHand[i]);
+                                playCardComputer(finalComputerHand[i]);
+                            }
+                        }
+                    }
+                }
+                else if(computerBoard[computerBoardSize].getSign().equals("+") && getComputerBoardValue() > 20){ // IF FLIP IS LOGICAL TO BE USED
+                    if( getComputerBoardValue() - computerBoard[computerBoardSize].getValue() * 2 <= 20 && getComputerBoardValue() - computerBoard[computerBoardSize].getValue() * 2 >= 16){ // IF USING FLIP PUTS US IN THE OPTIMAL RANGE
+                        for (int i = 0; i < finalComputerHandSize; i++) {
+                            if(finalComputerHand[i] != null && finalComputerHand[i].getType().equals("flip")){
+                                flipAmount--;
+                                System.out.println("Computer played the card: " + finalComputerHand[i]);
+                                playCardComputer(finalComputerHand[i]);
+                            }
+                        }
+                    }
+                }
+            }
+            else if(x2Amount > 0){ // IF WE HAVE DOUBLE
+                if(computerBoard[computerBoardSize].getSign().equals("+") && getComputerBoardValue() < 20){ // IF DOUBLE IS LOGICAL TO BE USED
+                    if(computerBoard[computerBoardSize].getValue() + getComputerBoardValue() <= 20 && computerBoard[computerBoardSize].getValue() + getComputerBoardValue() >= 16){ // IF USING DOUBLE PUTS US IN THE OPTIMAL RANGE
+                        for (int i = 0; i < finalComputerHandSize; i++) {
+                            if(finalComputerHand[i] != null && finalComputerHand[i].getType().equals("double")){
+                                x2Amount--;
+                                System.out.println("Computer played the card: " + finalComputerHand[i]);
+                                playCardComputer(finalComputerHand[i]);
+                            }
+                        }
+                    }
+                }
+                else if(computerBoard[computerBoardSize].getSign().equals("-") && getComputerBoardValue() > 20){ // IF DOUBLE IS LOGICAL TO BE USED
+                    if(getComputerBoardValue() - computerBoard[computerBoardSize].getValue() <= 20 && getComputerBoardValue() - computerBoard[computerBoardSize].getValue() >= 16){ // IF USING DOUBLE PUTS US IN THE OPTIMAL RANGE
+                        for (int i = 0; i < finalComputerHandSize; i++) {
+                            if(finalComputerHand[i] != null && finalComputerHand[i].getType().equals("double")){
+                                x2Amount--;
+                                System.out.println("Computer played the card: " + finalComputerHand[i]);
+                                playCardComputer(finalComputerHand[i]);
+                            }
+                        }
+                    }
+                }
             }
         }
     }
 
     public void playCardComputer(Card card){ // computer plays card
-        // @TODO
-        // NOT FULLY IMPLEMENTED
+        int index = -1;
         for (int i = 0; i < finalComputerHandSize; i++) {
-            if(finalComputerHand[i].equals(card)){
-                finalComputerHand[i] = null;
-                finalComputerHandSize--;
+            if(finalComputerHand[i] != null && finalComputerHand[i].equals(card)){
+                index = i;
                 break;
             }
         }
-        computerBoard[computerBoardSize++] = card;
+        if (finalComputerHand[index] != null) {
+            if(card.getType().equals("flip")){ // IF CARD IS FLIP, FLIP THE SIGN OF THE PREVIOUS CARD
+                String previousCardSign = computerBoard[computerBoardSize].getSign() == "-" ? "+" :"-";
+                computerBoard[computerBoardSize].setSign(previousCardSign);
+            }
+            else if(card.getType().equals("double")){ // IF CARD IS DOUBLE, DOUBLE THE VALUE OF THE PREVIOUS CARD
+                computerBoard[computerBoardSize].setValue(computerBoard[computerBoardSize].getValue() * 2);
+            }
+            finalComputerHand[index] = null;
+            computerBoard[computerBoardSize++] = card;
+            // finalComputerHand = removeCard(finalComputerHand, index);
+            // finalComputerHandSize--;
+        }
     }
 
     public void playCardPlayer(int index){ // player plays card
@@ -276,11 +340,11 @@ public class Game {
         }
         else{
             Card card = finalPlayerHand[index];
-            if(card.getType().equals("flip")){
+            if(card.getType().equals("flip")){ // IF CARD IS FLIP, FLIP THE SIGN OF THE PREVIOUS CARD
                 String previousCardSign = playerBoard[playerBoardSize].getSign() == "-" ? "+" :"-";
                 playerBoard[playerBoardSize].setSign(previousCardSign);
             }
-            else if(card.getType().equals("double")){
+            else if(card.getType().equals("double")){ // IF CARD IS DOUBLE, DOUBLE THE VALUE OF THE PREVIOUS CARD
                 playerBoard[playerBoardSize].setValue(playerBoard[playerBoardSize].getValue() * 2);
             }
             playerBoard[playerBoardSize++] = card;
@@ -323,6 +387,11 @@ public class Game {
             updateScores();
             displayScores();
         }
+    }
+
+    public Turn turnResult(){
+        Turn turn = new Turn(new Date(), "" + computerScore, "" + playerScore);
+        return turn;
     }
 
     private String getRandomColor() {
@@ -379,5 +448,9 @@ public class Game {
 
     public boolean getGameState(){
         return isOver;
+    }
+
+    public void setGameState(Boolean bool){
+        isOver = bool;
     }
 }

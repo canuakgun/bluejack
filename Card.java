@@ -51,16 +51,16 @@ public class Card {
             return "x2";
         }
         if( color.equals("yellow")){
-            return YELLOW + sign + value + RESET;
+            return YELLOW + sign + value + RESET; // MAKE TEXT YELLOW, THEN RESET
         }
         else if( color.equals("green")){
-            return GREEN + sign + value + RESET;
+            return GREEN + sign + value + RESET; // MAKE TEXT GREEN, THEN RESET
         }
         else if( color.equals("red")){
-            return RED + sign + value  + RESET;
+            return RED + sign + value  + RESET; // MAKE TEXT RED, THEN RESET
         }
         else if(color.equals("blue")){
-            return BLUE + sign + value  + RESET;
+            return BLUE + sign + value  + RESET; // MAKE TEXT BLUE, THEN RESET
         }
         else{
             return sign + value;
