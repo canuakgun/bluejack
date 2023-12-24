@@ -1,4 +1,9 @@
 public class Card {
+    String RESET = "\u001B[0m";
+    String RED = "\u001B[31m";
+    String GREEN = "\u001B[32m";
+    String YELLOW = "\u001B[33m";
+    String BLUE = "\u001B[34m";
     private int value;
     private String color;
     private String sign; // "+" or "-" or "flip" or "double"
@@ -37,6 +42,18 @@ public class Card {
         else if(type == "double"){
             return "x2";
         }
-        return color + " " + value + " " + sign;
+
+        if( color.equals("yellow")){
+            return YELLOW + sign + value + RESET;
+        }
+        else if( color.equals("green")){
+            return GREEN + sign + value + RESET;
+        }
+        else if( color.equals("RED")){
+            return RED + sign + value  + RESET;
+        }
+        else{
+            return BLUE + sign + value + RESET;
+        }
     }
 }

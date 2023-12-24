@@ -43,28 +43,28 @@ public class Game {
         dealInitialCards();
     }
 
-    private void dealInitialCards() {
-        for (int i = 0; i < 5; i++) {
+    private void dealInitialCards() { // creates first player cards of size 10
+        for (int i = 0; i < 5; i++) { // 5 basic cards
             tempComputerHand[tempComputerHandSize++] = gameDeck.dealTopCard();
             tempPlayerHand[tempPlayerHandSize++] = gameDeck.dealBottomCard();
         }
-        generateAdditionalCards();
-        randomizeFinalHands();
+        generateAdditionalCards(); // rest of the 5 cards
+        randomizeFinalHands(); // pick random 4 cards out of then and put it to hand
     }
 
-    private void generateAdditionalCards() {
+    private void generateAdditionalCards() { // generate final 5 cards
         for (int i = 0; i < 3; i++) {
-            addRandomCardToHand(tempPlayerHand, tempPlayerHandSize++);
-            addRandomCardToHand(tempComputerHand, tempComputerHandSize++);
+            addRandomCardToHand(tempPlayerHand, tempPlayerHandSize++); // add 3 normal cards to player's hand
+            addRandomCardToHand(tempComputerHand, tempComputerHandSize++); // add 3 normal cards to computer's hand
         }
         for (int i = 0; i < 2; i++) {
-            addSpecialCardToHand(tempPlayerHand, tempPlayerHandSize++);
-            addSpecialCardToHand(tempComputerHand, tempComputerHandSize++);
+            addSpecialCardToHand(tempPlayerHand, tempPlayerHandSize++); // add 2 normal cards to player's hand
+            addSpecialCardToHand(tempComputerHand, tempComputerHandSize++); // add 2 normal cards to computer's hand
         }
     }
 
     private void randomizeFinalHands(){
-        for(int i = 0; i < 4; i++){
+        for(int i = 0; i < 4; i++){ // randomly select 4 cards out of 10 for both player and computer
             finalPlayerHand[i] = tempPlayerHand[(int)(Math.random() * 10)];
             finalComputerHand[i] = tempComputerHand[(int)(Math.random() * 10)];
         }
@@ -72,15 +72,15 @@ public class Game {
         finalPlayerHandSize = 4;
     }
 
-    private void addRandomCardToHand(Card[] hand, int index) {
+    private void addRandomCardToHand(Card[] hand, int index) { // add rando card to hand
         int value = (int)(Math.random() * 6) + 1; // Random value between 1 and 6
         String color = getRandomColor();
-        String sign = Math.random() < 0.5 ? "+" : "-";
-        hand[index] = new Card(value, color, sign, "normal");
+        String sign = Math.random() < 0.5 ? "+" : "-"; // 50% chance of +, and 50% chance of -
+        hand[index] = new Card(value, color, sign, "normal"); // create new card and add it to hand
     }
 
     private void addSpecialCardToHand(Card[] hand, int index) {
-        if ((int)Math.random() < 0.8) {
+        if ((int)Math.random() < 0.8) { // 80% a normal signed card is generated
             // 80% chance to be a signed card
             addRandomCardToHand(hand, index);
         } else {
@@ -90,7 +90,7 @@ public class Game {
         }
     }
 
-    public int getPlayerBoardValue(){
+    public int getPlayerBoardValue(){ // get the sum of current cards in the player's board
         int sum = 0;
         for(int i = 0; i < playerBoardSize; i++){
             if(playerBoard[i].getSign().equals("-")){
@@ -103,7 +103,7 @@ public class Game {
         return sum;
     }
 
-    public int getComputerBoardValue(){
+    public int getComputerBoardValue(){ // get the sum of current cards in the computer's board
         int sum = 0;
         for(int i = 0; i < computerBoardSize; i++){
             if(computerBoard[i].getSign().equals("-")){
@@ -116,28 +116,36 @@ public class Game {
         return sum;
     }
 
-    public void evaluateResults(){
+    public void evaluateResults(){ // if both computer and player stands, and none of them got 20, check who got the bigger value and update scoreboard & end turn
+        if(getComputerBoardValue() > 20 && getPlayerBoardValue() > 20){
+            System.out.println("Both players busted");
+            resetGame();
+        }
         if(getComputerBoardValue() > getPlayerBoardValue()){
             computerWon = true;
         }
         else if (getComputerBoardValue() < getPlayerBoardValue()){
             playerWon = true;
         }
+        updateScores();
     }
 
-    public void displayScores(){
+    public void displayScores(){ // display scores
         System.out.println("Player Score: " + playerScore);
         System.out.println("Computer Score: " + computerScore);
     }
 
-    public void updateScores(){
+    public void updateScores(){ // update scores depending on the situation. This function is called in various places
         if(playerWon){
+            System.out.println("Player won this turn.");
             playerScore++;
         }
         else if (computerWon){
+            System.out.println("Computer won this turn.");
             computerScore++;
         }
         else{
+            System.out.println("It is a tie.");
             playerScore++;
             computerScore++;
         }
@@ -149,14 +157,16 @@ public class Game {
         resetGame();
     }
 
-    public void resetGame(){
+    public void resetGame(){ // after a turn ends, this function resets the boards
         playerBoardSize = 0;
         computerBoardSize = 0;
-        playerBoard = new Card[playerBoardSize];
-        computerBoard = new Card[computerBoardSize];
+        playerBoard = new Card[20];
+        computerBoard = new Card[20];
     }
 
-    public void computersTurn(){
+    public void computersTurn(){ // MAIN METHOD COMPLEX METHOD I AM DYING MY BROTHER IN CHRIST WHAT IS THIS 
+        // TO BE FURTHER IMPLEMENTED, COMPUTER SHOULD BE ABLE TO END TURN, NOT ALWAYS STAND
+        // NOT COMPLETELY IMPLEMENTED
         boolean done = false;
         int maxAdd = 0;
         int maxSub = 0;
@@ -198,11 +208,17 @@ public class Game {
                         playCardComputer(finalComputerHand[i]);
                     }
                 }
+                done = true;
+            }
+            else{
+                done = true;
             }
         }
     }
 
-    public void playCardComputer(Card card){
+    public void playCardComputer(Card card){ // computer plays card
+        // @TODO
+        // NOT FULLY IMPLEMENTED
         for (int i = 0; i < finalComputerHandSize; i++) {
             if(finalComputerHand[i].equals(card)){
                 finalComputerHand[i] = null;
@@ -213,26 +229,28 @@ public class Game {
         computerBoard[computerBoardSize++] = card;
     }
 
-    public void playCardPlayer(Card card){
+    public void playCardPlayer(Card card){ // player plays card
+        // @TODO
+        // NOT IMPLEMENTED
+    }
+
+    public void checkComputerBoard(){ // check if at the end of a turn if computer got a value of 20 and won immediately.
+        if(getComputerBoardValue() == 20){
+            System.out.println("Computer won the turn.");
+            computerWon = true;
+            updateScores();
+            displayScores();
+        }
         
     }
 
-    public void checkComputerBoard(){
-        if(getComputerBoardValue() == 20){
-            computerWon = true;
-            updateScores();
-        }
-        System.out.println("Computer won the turn.");
-        displayScores();
-    }
-
-    public void checkPlayerBoard(){
+    public void checkPlayerBoard(){ // check if at the end of a turn if player got a value of 20 and won immediately.
         if(getPlayerBoardValue() == 20){
+            System.out.println("Player won the turn.");
             playerWon = true;
             updateScores();
+            displayScores();
         }
-        System.out.println("Player won the turn.");
-        displayScores();
     }
 
     private String getRandomColor() {
