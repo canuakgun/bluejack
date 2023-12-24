@@ -93,7 +93,6 @@ public class Game {
     public int getPlayerBoardValue(){
         int sum = 0;
         for(int i = 0; i < playerBoardSize; i++){
-            System.out.println("DEBUG: " + playerBoard[i].getValue());
             if(playerBoard[i].getSign().equals("-")){
                 sum -= playerBoard[i].getValue();
             }
@@ -107,7 +106,6 @@ public class Game {
     public int getComputerBoardValue(){
         int sum = 0;
         for(int i = 0; i < computerBoardSize; i++){
-            System.out.println("DEBUG: " + computerBoard[i].getValue());
             if(computerBoard[i].getSign().equals("-")){
                 sum -= computerBoard[i].getValue();
             }
@@ -159,7 +157,64 @@ public class Game {
     }
 
     public void computersTurn(){
-        // TO BE IMPLEMENTED
+        boolean done = false;
+        int maxAdd = 0;
+        int maxSub = 0;
+        int flipAmount = 0;
+        int x2Amount = 0;
+
+        Card[] add = new Card[4];
+        Card[] sub = new Card[4];
+        Card[] flip = new Card[4];
+        Card[] x2 = new Card[4];
+        for (int i = 0; i < finalComputerHandSize; i++) {
+            if(finalComputerHand[i].getType().equals("normal") && finalComputerHand[i].getSign().equals("+")){
+                maxAdd += finalComputerHand[i].getValue();
+                add[i] = finalComputerHand[i];
+            }
+            else if(finalComputerHand[i].getType().equals("normal") && finalComputerHand[i].getSign().equals("-")){
+                maxSub += finalComputerHand[i].getValue();
+                sub[i] = finalComputerHand[i];
+            }
+            else if(finalComputerHand[i].getType().equals("flip")){
+                flipAmount++;
+                flip[i] = finalComputerHand[i];
+            }
+            else if(finalComputerHand[i].getType().equals("flip")){
+                x2Amount++;
+                x2[i] = finalComputerHand[i];
+            }
+        }
+        while(!done){
+            if(getComputerBoardValue() <= 15){
+                hitComputer();
+            }
+            else if(getComputerBoardValue() >= 16 && getComputerBoardValue() <= 20){
+                done = true;
+            }
+            else if(getComputerBoardValue() - maxSub > 20){
+                for (int i = 0; i < finalComputerHandSize; i++) {
+                    if(finalComputerHand[i].getType().equals("normal") && finalComputerHand[i].getSign().equals("-")){
+                        playCardComputer(finalComputerHand[i]);
+                    }
+                }
+            }
+        }
+    }
+
+    public void playCardComputer(Card card){
+        for (int i = 0; i < finalComputerHandSize; i++) {
+            if(finalComputerHand[i].equals(card)){
+                finalComputerHand[i] = null;
+                finalComputerHandSize--;
+                break;
+            }
+        }
+        computerBoard[computerBoardSize++] = card;
+    }
+
+    public void playCardPlayer(Card card){
+        
     }
 
     public void checkComputerBoard(){
@@ -167,6 +222,8 @@ public class Game {
             computerWon = true;
             updateScores();
         }
+        System.out.println("Computer won the turn.");
+        displayScores();
     }
 
     public void checkPlayerBoard(){
@@ -174,6 +231,8 @@ public class Game {
             playerWon = true;
             updateScores();
         }
+        System.out.println("Player won the turn.");
+        displayScores();
     }
 
     private String getRandomColor() {
@@ -193,12 +252,28 @@ public class Game {
         return finalPlayerHand;
     }
 
+    public Card[] getComputerHand() {
+        return finalPlayerHand;
+    }
+
     public Card[] getPlayerBoard(){
         return playerBoard;
     }
 
+    public Card[] getComputerBoard(){
+        return computerBoard;
+    }
+
     public int getPlayerHandSize() {
         return finalPlayerHandSize;
+    }
+
+    public int getComputerBoardSize() {
+        return computerBoardSize;
+    }
+
+    public int getComputerHandSize() {
+        return finalComputerHandSize;
     }
 
     public int getPlayerBoardSize(){
