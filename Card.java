@@ -50,18 +50,20 @@ public class Card {
         else if(type == "double"){
             return "x2";
         }
-
         if( color.equals("yellow")){
             return YELLOW + sign + value + RESET;
         }
         else if( color.equals("green")){
             return GREEN + sign + value + RESET;
         }
-        else if( color.equals("RED")){
+        else if( color.equals("red")){
             return RED + sign + value  + RESET;
         }
+        else if(color.equals("blue")){
+            return BLUE + sign + value  + RESET;
+        }
         else{
-            return BLUE + sign + value + RESET;
+            return sign + value;
         }
     }
 }

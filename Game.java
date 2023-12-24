@@ -17,8 +17,10 @@ public class Game {
     private int playerScore;
     private int computerScore;
     private boolean isOver;
-    private boolean playerWon;
-    private boolean computerWon;
+    private boolean playerWonTurn;
+    private boolean computerWonTurn;
+    private boolean playerWonGame;
+    private boolean computerWonGame;
 
     public Game() {
         gameDeck = new Deck();
@@ -29,16 +31,18 @@ public class Game {
         finalComputerHand = new Card[4];
         playerBoardSize = 0;
         computerBoardSize = 0;
-        playerBoard = new Card[20];
-        computerBoard = new Card[20];
+        playerBoard = new Card[9];
+        computerBoard = new Card[9];
         tempPlayerHandSize = 0;
         tempComputerHandSize = 0;
         finalPlayerHandSize = 0;
         finalComputerHandSize = 0;
         playerScore = 0;
         computerScore = 0;
-        playerWon = false;
-        computerWon = false;
+        playerWonTurn = false;
+        computerWonTurn = false;
+        playerWonGame = false;
+        computerWonGame = false;
         isOver = false;
         dealInitialCards();
     }
@@ -116,16 +120,48 @@ public class Game {
         return sum;
     }
 
-    public void evaluateResults(){ // if both computer and player stands, and none of them got 20, check who got the bigger value and update scoreboard & end turn
-        if(getComputerBoardValue() > 20 && getPlayerBoardValue() > 20){
-            System.out.println("Both players busted");
-            resetGame();
+    public boolean checkAllBlue(Card[] deck){
+        if(deck.length == 0){
+            return false;
         }
-        if(getComputerBoardValue() > getPlayerBoardValue()){
-            computerWon = true;
+        for (int i = 0; i < deck.length; i++) {
+            if(!deck[i].getColor().equals("deck")){
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public void evaluateResults(){ // if both computer and player stands, and none of them got 20, check who got the bigger value and update scoreboard & end turn
+        if (getPlayerBoardValue() == 20 && checkAllBlue(playerBoard)) {
+            playerWonGame = true;
+        }
+        else if(getComputerBoardValue() == 20 && checkAllBlue(computerBoard)){
+            computerWonGame = true;
+        }
+        else if(getComputerBoardValue() > 20 && getPlayerBoardValue() > 20){
+            System.out.println("Both players busted");
+        }
+        else if(getComputerBoardValue() > 20){
+            playerWonTurn = true;
+        }
+        else if(getPlayerBoardValue() > 20){
+            computerWonTurn = true;
+        }
+        else if(getComputerBoardValue() == 20 && getPlayerBoardValue() == 20){
+            System.out.println("It is a tie");
+        }
+        else if(getComputerBoardValue() == 20){
+            computerWonTurn = true;
+        }
+        else if(getPlayerBoardValue() == 20){
+            playerWonTurn = true;
+        }
+        else if(getComputerBoardValue() > getPlayerBoardValue()){
+            computerWonTurn = true;
         }
         else if (getComputerBoardValue() < getPlayerBoardValue()){
-            playerWon = true;
+            playerWonTurn = true;
         }
         updateScores();
     }
@@ -136,32 +172,37 @@ public class Game {
     }
 
     public void updateScores(){ // update scores depending on the situation. This function is called in various places
-        if(playerWon){
+        if(playerWonGame){
+            playerScore = 3;
+        }
+        else if(computerWonGame){
+            computerScore = 3;
+        }
+        else if(playerWonTurn){
             System.out.println("Player won this turn.");
             playerScore++;
         }
-        else if (computerWon){
+        else if (computerWonTurn){
             System.out.println("Computer won this turn.");
             computerScore++;
         }
         else{
             System.out.println("It is a tie.");
-            playerScore++;
-            computerScore++;
         }
         if (playerScore == 3 || computerScore == 3) {
             isOver = true;
+            return;
         }
-        playerWon = false;
-        computerWon = false;
+        playerWonTurn = false;
+        computerWonTurn = false;
         resetGame();
     }
 
     public void resetGame(){ // after a turn ends, this function resets the boards
         playerBoardSize = 0;
         computerBoardSize = 0;
-        playerBoard = new Card[20];
-        computerBoard = new Card[20];
+        playerBoard = new Card[9];
+        computerBoard = new Card[9];
     }
 
     public void computersTurn(){ // MAIN METHOD COMPLEX METHOD I AM DYING MY BROTHER IN CHRIST WHAT IS THIS 
@@ -268,7 +309,7 @@ public class Game {
     public void checkComputerBoard(){ // check if at the end of a turn if computer got a value of 20 and won immediately.
         if(getComputerBoardValue() == 20){
             System.out.println("Computer won the turn.");
-            computerWon = true;
+            computerWonTurn = true;
             updateScores();
             displayScores();
         }
@@ -278,7 +319,7 @@ public class Game {
     public void checkPlayerBoard(){ // check if at the end of a turn if player got a value of 20 and won immediately.
         if(getPlayerBoardValue() == 20){
             System.out.println("Player won the turn.");
-            playerWon = true;
+            playerWonTurn = true;
             updateScores();
             displayScores();
         }
@@ -290,11 +331,18 @@ public class Game {
     }
 
     public void hitPlayer() {
-        playerBoard[playerBoardSize++] = gameDeck.dealTopCard();
+        if(playerBoardSize <= 9){
+            playerBoard[playerBoardSize++] = gameDeck.dealTopCard();
+        }
+        else{
+            System.out.println("Your board is full, cannot hit anymore.");
+        }
     }
 
     public void hitComputer() {
-        computerBoard[computerBoardSize++] = gameDeck.dealTopCard();
+        if (computerBoardSize <= 9) {
+            computerBoard[computerBoardSize++] = gameDeck.dealTopCard();
+        }
     }
 
     public Card[] getPlayerHand() {
