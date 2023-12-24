@@ -229,9 +229,40 @@ public class Game {
         computerBoard[computerBoardSize++] = card;
     }
 
-    public void playCardPlayer(Card card){ // player plays card
-        // @TODO
-        // NOT IMPLEMENTED
+    public void playCardPlayer(int index){ // player plays card
+        if (finalPlayerHand[index] == null) {
+            System.out.println("You have already played that card.");
+        }
+        else{
+            Card card = finalPlayerHand[index];
+            if(card.getType().equals("flip")){
+                String previousCardSign = playerBoard[playerBoardSize].getSign() == "-" ? "+" :"-";
+                playerBoard[playerBoardSize].setSign(previousCardSign);
+            }
+            else if(card.getType().equals("double")){
+                playerBoard[playerBoardSize].setValue(playerBoard[playerBoardSize].getValue() * 2);
+            }
+            playerBoard[playerBoardSize++] = card;
+            finalPlayerHand = removeCard(finalPlayerHand, index);
+            finalPlayerHandSize--;
+        }
+    }
+
+    public Card[] removeCard(Card[] deck, int index){
+        Card[] newArray = new Card[deck.length-1];
+        for (int i = 0, k = 0; i < deck.length; i++) { 
+  
+            // if the index is 
+            // the removal element index 
+            if (i == index) { 
+                continue; 
+            } 
+  
+            // if the index is not 
+            // the removal element index 
+            newArray[k++] = deck[i]; 
+        }
+        return newArray;
     }
 
     public void checkComputerBoard(){ // check if at the end of a turn if computer got a value of 20 and won immediately.
@@ -271,7 +302,7 @@ public class Game {
     }
 
     public Card[] getComputerHand() {
-        return finalPlayerHand;
+        return finalComputerHand;
     }
 
     public Card[] getPlayerBoard(){

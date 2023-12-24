@@ -14,8 +14,7 @@ public class Main {
         while(!game.getGameState()){ // while game is not ended yet
             System.out.println("START"); // debug code, will be removed
             while (playerTurn) { // while the player didn't press stand yet
-                displayPlayerHand(game);
-                displayPlayerBoard(game);
+                createGameTable(game);
                 System.out.println("Choose an action: 'hit' or 'stand' or 'end'");
                 String action = scanner.nextLine(); // READ user input
                 if (action.equals("hit")) {
@@ -24,7 +23,10 @@ public class Main {
                     playerTurn = false; // player said stand, end his turn, wait for computer's response
                 } else if (action.equals("end")){
                     System.out.println("Turn ended."); //  player said end, computer will respond accordingly and will not say stand, turn will come back to player
-                } else {
+                } else if (action.equals("1") || action.equals("2") || action.equals("3") || action.equals("4")){
+                    int choice = Integer.parseInt(action);
+                    game.playCardPlayer(choice - 1);
+                } else{
                     System.out.println("Invalid action, please type 'hit' or 'stand'"); // PLEASE ENTER ONE OF THESE THREE
                 }
             }
@@ -50,6 +52,10 @@ public class Main {
         System.out.println("Your hand:");
         Card[] hand = game.getPlayerHand();
         int handSize = game.getPlayerHandSize();
+        if(handSize == 0){
+            System.out.println("Empty!");
+            return;
+        }
         for (int i = 0; i < handSize; i++) {
             System.out.print(hand[i]);
             if(i != handSize-1){
@@ -77,6 +83,8 @@ public class Main {
         System.out.println("Computer hand:");
         Card[] hand = game.getComputerHand();
         int handSize = game.getComputerHandSize();
+        System.out.println("COMPUTER HAND SIZE: " + handSize);
+        System.out.println("COMPUTER HAND SIZE 222: " + hand.length);
         for (int i = 0; i < handSize; i++) {
             if(hand[i] == null){
                 System.out.print("O");
@@ -87,8 +95,9 @@ public class Main {
         }
         System.out.println();
         for (int i = 0; i < handSize; i++) {
-            System.out.println(hand[i]);
+            System.out.print(hand[i]);
         }
+        System.out.println();
     }
 
     private static void displayComputerBoard(Game game) {
@@ -103,5 +112,12 @@ public class Main {
             System.out.println(board[i]);
         }
         System.out.println(game.getComputerBoardValue());
+    }
+
+    private static void createGameTable(Game game){
+        displayComputerHand(game);
+        displayComputerBoard(game);
+        displayPlayerHand(game);
+        displayPlayerBoard(game);
     }
 }

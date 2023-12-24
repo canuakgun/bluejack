@@ -33,6 +33,14 @@ public class Card {
         return sign;
     }
 
+    public void setSign(String sign) {
+        this.sign = sign;
+    }
+
+    public void setValue(int value) {
+        this.value = value;
+    }
+
     // Card representation
     @Override
     public String toString() {
