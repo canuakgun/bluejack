@@ -15,6 +15,16 @@ public class Deck {
                 cards[size++] = new Card(i, color, "", "normal");
             }
         }
+        // Add special cards logic here
+    }
+
+    public void shuffle() {
+        for (int i = 0; i < size; i++) {
+            int index = (int) (Math.random() * size);
+            Card temp = cards[i];
+            cards[i] = cards[index];
+            cards[index] = temp;
+        }
     }
 
     public Card dealTopCard() {
