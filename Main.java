@@ -9,16 +9,24 @@ public class Main {
         while(!game.getGameState()){
             while (playerTurn) {
                 displayPlayerHand(game);
-                displayBoards(game);
+                displayPlayerBoard(game);
                 System.out.println("Choose an action: 'hit' or 'stand'");
                 String action = scanner.nextLine();
-                if (action == "hit") {
+                if (action.equals("hit")) {
                     game.hitPlayer();
-                } else if (action == "stand") {
+                } else if (action.equals("stand")) {
                     playerTurn = false;
                 } else {
                     System.out.println("Invalid action, please type 'hit' or 'stand'");
                 }
+            }
+            game.checkPlayerBoard();
+            game.computersTurn();
+            game.checkComputerBoard();
+            if(!playerTurn){
+                game.evaluateResults();
+                playerTurn = true;
+                game.displayScores();
             }
         }
 
@@ -34,7 +42,7 @@ public class Main {
         }
     }
 
-    private static void displayBoards(Game game) {
+    private static void displayPlayerBoard(Game game) {
         System.out.println("Your board:");
         Card[] board = game.getPlayerBoard();
         int boardSize = game.getPlayerBoardSize();
@@ -45,5 +53,6 @@ public class Main {
         for (int i = 0; i < boardSize; i++) {
             System.out.println(board[i]);
         }
+        System.out.println(game.getPlayerBoardValue());
     }
 }

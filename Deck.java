@@ -12,7 +12,7 @@ public class Deck {
         String[] colors = {"blue", "yellow", "red", "green"};
         for (String color : colors) {
             for (int i = 1; i <= 10; i++) {
-                cards[size++] = new Card(i, color, "", "normal");
+                cards[size++] = new Card(i, color, "+", "normal");
             }
         }
     }
